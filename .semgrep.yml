@@ -1,0 +1,25 @@
+rules:
+  - id: registry-load-restricted
+    languages:
+      - go
+    message: |
+      Direct calls to registry.Load() are restricted to the security layer only.
+
+      The registry.Load() method should ONLY be called from:
+      - internal/security/security.go (Security.Load() method)
+      - Test files (*_test.go)
+
+      This restriction ensures that all registry loads go through the security layer,
+      which performs critical path validation and tampering detection.
+
+      If you need to reload the registry, use:
+      - Security.Load() method for refreshing an existing security instance
+      - security.LoadSecurity() function for creating a new instance from disk
+    severity: ERROR
+    pattern: $REG.Load()
+    paths:
+      include:
+        - "**/*.go"
+      exclude:
+        - "**/*_test.go"
+        - "**/internal/security/security.go"
